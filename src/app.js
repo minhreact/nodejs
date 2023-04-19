@@ -12,10 +12,9 @@ const compression = require("compression");
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(compression());
-
 // tieu chuan apache
 // app.use(morgan("combined"));
-
+// library
 // morgan("common");
 // morgan("short");
 // morgan("tiny");
