@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const morgan = require("morgan");
 const app = express();
@@ -12,6 +13,8 @@ const compression = require("compression");
 app.use(morgan("dev"));
 app.use(helmet());
 app.use(compression());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 // tieu chuan apache
 // app.use(morgan("combined"));
 // library
@@ -20,14 +23,13 @@ app.use(compression());
 // morgan("tiny");
 // init database
 
-// init routes
-app.get("/", (req, res, next) => {
-  const strComperss = "Hello World";
+require("./dbs/init.mongodb");
 
-  return res
-    .status(200)
-    .json({ message: "Hello World", metadata: strComperss.repeat(1000) });
-});
+// const { checkOverLoad } = require("./helpers/check.connect");
+// checkOverLoad();
+// init routes
+
+app.use("", require("./routes"));
 // handling errors
 
 exports.app = app;
