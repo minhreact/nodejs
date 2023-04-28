@@ -11,12 +11,12 @@ const ReasonStatusCode = {
 };
 
 class SuccessResponse {
-  constructor(
+  constructor({
     message,
-    statusCode = statusCode.OK,
+    statusCode = StatusCode.OK,
     reasonStatusCode = ReasonStatusCode.OK,
-    metadata = {}
-  ) {
+    metadata = {},
+  }) {
     this.message = !message ? reasonStatusCode : message;
     this.status = statusCode;
     this.metadata = metadata;
@@ -46,4 +46,4 @@ class CREATED extends SuccessResponse {
   }
 }
 
-module.exports = { OK, CREATED };
+module.exports = { OK, CREATED, SuccessResponse };
