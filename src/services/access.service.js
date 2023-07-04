@@ -265,6 +265,7 @@ class AccessService {
         publicKey,
         privateKey
       );
+      console.log("tokens", tokens);
       return {
         code: 201,
         metadata: {

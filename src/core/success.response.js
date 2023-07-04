@@ -34,14 +34,14 @@ class OK extends SuccessResponse {
 }
 
 class CREATED extends SuccessResponse {
-  constructor(
-    options = {},
-    message,
+  constructor({
+    message = "Created",
     statusCode = StatusCode.CREATED,
     reasonStatusCode = ReasonStatusCode.CREATED,
-    metadata
-  ) {
-    super(message, statusCode, reasonStatusCode, metadata);
+    metadata,
+    options = {},
+  }) {
+    super({ message, statusCode, reasonStatusCode, metadata });
     this.options = options;
   }
 }
