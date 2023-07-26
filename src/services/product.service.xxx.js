@@ -15,7 +15,9 @@ const {
   searchProductByUser,
   findProduct,
   findAllProduct,
+  updateProductById,
 } = require("../models/repositories/product.repo");
+const { removeUndefinedObject, updateNestObjectParser } = require("../utils");
 // define factory class to create product
 
 class ProductFactory {
@@ -36,12 +38,12 @@ class ProductFactory {
     return new productClass(payload).createProduct();
   }
   // update product
-  static async updateProduct(type, payload) {
+  static async updateProduct(type, productId, payload) {
     const productClass = ProductFactory.productRegistry[type];
     if (!productClass) {
       throw new BadRequestError(`Invalid product type ${type}`);
     }
-    return new productClass(payload).createProduct();
+    return new productClass(payload).updateProduct(productId);
   }
 
   // put //
@@ -88,7 +90,10 @@ class ProductFactory {
 
   //
   static async findProduct({ product_id }) {
-    return await findProduct({ product_id, unSelect: ["__v"] });
+    return await findProduct({
+      product_id,
+      unSelect: ["__v", "product_variations"],
+    });
   }
 }
 
@@ -118,6 +123,12 @@ class Product {
   async createProduct(product_id) {
     return await product.create({ ...this, _id: product_id });
   }
+
+  // update product
+
+  async updateProduct(productId, payload) {
+    return await updateProductById({ productId, payload, model: product });
+  }
 }
 
 // define sub-class for different product types clothing
@@ -136,6 +147,23 @@ class Clothing extends Product {
       throw new BadRequestError("Can not create new product");
     }
     return newProduct;
+  }
+
+  async updateProduct(productId) {
+    // 1.remove attribute has null and undefined
+    const objectParam = this;
+    // 2. check xem update o cho nao?
+    if (objectParam.product_attributes) {
+      // update child
+      await updateProductById({
+        productId,
+        payload: objectParam,
+        model: clothing,
+      });
+    }
+
+    const updateProduct = await super.updateProduct(productId, objectParam);
+    return updateProduct;
   }
 }
 
@@ -156,6 +184,27 @@ class Electronics extends Product {
       throw new BadRequestError("Can not create new product");
     }
     return newProduct;
+  }
+
+  async updateProduct(productId) {
+    // 1.remove attribute has null and undefined
+    // const updateNest = updateNestObjectParser(this);
+    const objectParam = removeUndefinedObject(this);
+    // 2. check xem update o cho nao?
+    if (objectParam.product_attributes) {
+      // update child
+      await updateProductById({
+        productId,
+        payload: updateNestObjectParser(objectParam.product_attributes),
+        model: electronic,
+      });
+    }
+
+    const updateProduct = await super.updateProduct(
+      productId,
+      updateNestObjectParser(objectParam)
+    );
+    return updateProduct;
   }
 }
 
